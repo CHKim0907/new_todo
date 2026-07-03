@@ -3,6 +3,7 @@ import { Todo } from '@/types';
 import { useTodos } from '@/hooks/useTodos';
 import { useState } from 'react';
 import { CompletedAnimation } from './CompletedAnimation';
+import { ShareButton } from './ShareButton';
 
 const priorityColors = {
   high: 'bg-red-100 text-red-700 border-red-300',
@@ -76,12 +77,15 @@ export function TodoItem({ todo }: { todo: Todo }) {
             )}
           </div>
         </div>
-        <button
-          onClick={() => deleteTodo(todo.id)}
-          className="px-2 py-1 text-sm text-red-500 hover:bg-red-100 rounded transition"
-        >
-          삭제
-        </button>
+        <div className="flex gap-1">
+          <ShareButton todo={todo} />
+          <button
+            onClick={() => deleteTodo(todo.id)}
+            className="px-2 py-1 text-sm text-red-500 hover:bg-red-100 rounded transition"
+          >
+            삭제
+          </button>
+        </div>
       </div>
     </>
   );
