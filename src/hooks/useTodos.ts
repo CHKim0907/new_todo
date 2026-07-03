@@ -1,10 +1,13 @@
 'use client';
 import useSWR from 'swr';
 import { Todo } from '@/types';
+import { useAuth } from './useAuth';
+import { useRealtimeTodos } from './useRealtimeTodos';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function useTodos() {
+  const { user } = useAuth();
   const { data: todos = [], mutate, isLoading, error } = useSWR(
     '/api/todos',
     fetcher,
@@ -13,6 +16,9 @@ export function useTodos() {
       dedupingInterval: 60000,
     }
   );
+
+  // Realtime 리스너 설정
+  useRealtimeTodos(user?.id, () => mutate());
 
   const addTodo = async (title: string, priority = 'medium') => {
     const newTodo = await fetch('/api/todos', {
