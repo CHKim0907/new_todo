@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabase';
 
-// GET: 모든 할일 조회
+// GET: 현재 사용자의 할일 조회
 export async function GET() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return NextResponse.json({ error: '인증 필요' }, { status: 401 });
+  }
+
   const { data, error } = await supabase
     .from('todos')
     .select('*')
+    .eq('user_id', session.user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -16,7 +25,15 @@ export async function GET() {
 
 // POST: 새 할일 추가
 export async function POST(request: NextRequest) {
-  const { title, priority = 'medium' } = await request.json();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return NextResponse.json({ error: '인증 필요' }, { status: 401 });
+  }
+
+  const { title, priority = 'medium', due_date } = await request.json();
 
   if (!title?.trim()) {
     return NextResponse.json(
@@ -31,10 +48,12 @@ export async function POST(request: NextRequest) {
       {
         title,
         priority,
+        due_date: due_date || null,
         completed: false,
         tags: [],
         recurrence: null,
         is_archived: false,
+        user_id: session.user.id,
       },
     ])
     .select();
