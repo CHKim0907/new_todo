@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할일앱 목업 - 시안 B (섹션 카드)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif;
+            background: #FAFAFA;
+            color: #333333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            height: 72px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E8E8E8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .header-time {
+            font-size: 14px;
+            color: #999999;
+        }
+
+        /* 섹션 */
+        .content {
+            padding: 16px;
+        }
+
+        .section {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            height: 44px;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .section-header.overdue {
+            background: #FF6B6B;
+        }
+
+        .section-header.today {
+            background: #FF7AAC;
+        }
+
+        .section-header.tomorrow {
+            background: #FFB84D;
+        }
+
+        .section-header.thisweek {
+            background: #A8E6CF;
+            color: #333333;
+        }
+
+        .section-header-count {
+            margin-left: auto;
+            font-size: 16px;
+        }
+
+        /* 할일 카드 */
+        .todo-card {
+            background: #FFFFFF;
+            border: 1px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 0 0 12px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s ease-out;
+        }
+
+        .todo-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+
+        .todo-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #E8E8E8;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .todo-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .todo-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .todo-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .todo-due {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #666666;
+        }
+
+        .todo-due.overdue {
+            color: #FF6B6B;
+            font-weight: 600;
+        }
+
+        .todo-due.today {
+            color: #FF7AAC;
+            font-weight: 600;
+        }
+
+        .todo-due.tomorrow {
+            color: #FFB84D;
+            font-weight: 600;
+        }
+
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .priority-badge.high {
+            background: #FFE5E5;
+            color: #FF6B6B;
+        }
+
+        .priority-badge.medium {
+            background: #FFF3E0;
+            color: #FFB84D;
+        }
+
+        .priority-badge.low {
+            background: #E5F8F2;
+            color: #6BCB77;
+        }
+
+        .todo-menu {
+            color: #999999;
+            cursor: pointer;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* 진도바 (대시보드) */
+        .dashboard {
+            background: #F5F5F5;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666666;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .progress-block {
+            flex: 1;
+            height: 8px;
+            background: #FFD93D;
+            border-radius: 2px;
+        }
+
+        .progress-block.empty {
+            background: #E8E8E8;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333333;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            background: #FF7AAC;
+            border: none;
+            border-radius: 32px;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 122, 172, 0.4);
+            transition: all 0.2s ease-out;
+        }
+
+        .fab:hover {
+            box-shadow: 0 6px 16px rgba(255, 122, 172, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* 필터 바 */
+        .filter-bar {
+            height: 44px;
+            background: #F5F5F5;
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+            align-items: center;
+            margin: 0 -16px 16px -16px;
+            padding: 8px 16px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #E8E8E8;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666666;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #F5F5F5;
+            border-color: #FF7AAC;
+            color: #FF7AAC;
+        }
+
+        .filter-btn.active {
+            background: #FF7AAC;
+            border-color: #FF7AAC;
+            color: white;
+        }
+
+        /* 반응형 */
+        @media (max-width: 767px) {
+            .header {
+                height: 64px;
+                padding: 0 12px;
+            }
+
+            .header-title {
+                font-size: 22px;
+            }
+
+            .header-time {
+                display: none;
+            }
+
+            .content {
+                padding: 12px;
+            }
+
+            .todo-card {
+                padding: 12px;
+                margin-bottom: 8px;
+            }
+
+            .fab {
+                width: 56px;
+                height: 56px;
+                bottom: 16px;
+                right: 16px;
+                font-size: 24px;
+            }
+
+            .todo-checkbox {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* 완료 상태 */
+        .todo-card.completed {
+            opacity: 0.6;
+        }
+
+        .todo-card.completed .todo-title {
+            text-decoration: line-through;
+            color: #999999;
+        }
+
+        /* 정보 박스 */
+        .info-box {
+            background: #F0F4FF;
+            border-left: 4px solid #4D96FF;
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333333;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #4D96FF;
+        }
+
+        /* 섹션 래퍼 */
+        .section-wrapper {
+            margin-bottom: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #E8E8E8;
+        }
+
+        .section-items {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="header-title">📋 오늘의 할일</div>
+            <div class="header-time">14:30</div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="content">
+            <div class="info-box">
+                <strong>시안 B (확정):</strong> 명랑하고 친근한 마감일별 섹션 그룹화
+            </div>
+
+            <!-- 진도바 (대시보드) -->
+            <div class="dashboard">
+                <div class="dashboard-title">📊 오늘 진행도</div>
+                <div class="progress-bar">
+                    <div class="progress-block"></div>
+                    <div class="progress-block"></div>
+                    <div class="progress-block empty"></div>
+                    <div class="progress-block empty"></div>
+                    <div class="progress-block empty"></div>
+                </div>
+                <div class="progress-text">3/5 (60%)</div>
+            </div>
+
+            <!-- 필터 바 -->
+            <div class="filter-bar">
+                <button class="filter-btn">우선순위: 모두</button>
+                <button class="filter-btn">상태: 활성</button>
+                <button class="filter-btn active">마감일순</button>
+            </div>
+
+            <!-- 지난일 섹션 -->
+            <div class="section-wrapper">
+                <div class="section-header overdue">
+                    🔴 지난일 <span class="section-header-count">(2)</span>
+                </div>
+                <div class="section-items">
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox" checked>
+                        <div class="todo-content">
+                            <div class="todo-title">어제 보고서 마무리</div>
+                            <div class="todo-meta">
+                                <span class="todo-due overdue">⏰ 어제</span>
+                                <span class="priority-badge high">높음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">A사 메일 답변</div>
+                            <div class="todo-meta">
+                                <span class="todo-due overdue">⏰ 2일 전</span>
+                                <span class="priority-badge medium">중간</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오늘 섹션 -->
+            <div class="section-wrapper">
+                <div class="section-header today">
+                    🌸 오늘 <span class="section-header-count">(3)</span>
+                </div>
+                <div class="section-items">
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox" checked>
+                        <div class="todo-content">
+                            <div class="todo-title">마케팅 제안서 검토</div>
+                            <div class="todo-meta">
+                                <span class="todo-due today">⏰ 오늘 17:00</span>
+                                <span class="priority-badge high">높음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox" checked>
+                        <div class="todo-content">
+                            <div class="todo-title">팀 미팅 준비 자료</div>
+                            <div class="todo-meta">
+                                <span class="todo-due today">⏰ 오늘 15:30</span>
+                                <span class="priority-badge high">높음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">이메일 정리 및 응답</div>
+                            <div class="todo-meta">
+                                <span class="todo-due today">⏰ 오늘 18:00</span>
+                                <span class="priority-badge low">낮음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 내일 섹션 -->
+            <div class="section-wrapper">
+                <div class="section-header tomorrow">
+                    🌅 내일 <span class="section-header-count">(2)</span>
+                </div>
+                <div class="section-items">
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">신입 온보딩 자료 준비</div>
+                            <div class="todo-meta">
+                                <span class="todo-due tomorrow">⏰ 내일 09:00</span>
+                                <span class="priority-badge high">높음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">프로젝트 회의 발표 슬라이드</div>
+                            <div class="todo-meta">
+                                <span class="todo-due tomorrow">⏰ 내일 14:00</span>
+                                <span class="priority-badge medium">중간</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 이번주+ 섹션 -->
+            <div class="section-wrapper">
+                <div class="section-header thisweek">
+                    ✅ 이번주+ <span class="section-header-count">(3)</span>
+                </div>
+                <div class="section-items">
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">주간 보고서 작성</div>
+                            <div class="todo-meta">
+                                <span class="todo-due">⏰ 금요일</span>
+                                <span class="priority-badge medium">중간</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">분기별 성과 분석</div>
+                            <div class="todo-meta">
+                                <span class="todo-due">⏰ 다음주 월요일</span>
+                                <span class="priority-badge low">낮음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                    <div class="todo-card">
+                        <input type="checkbox" class="todo-checkbox">
+                        <div class="todo-content">
+                            <div class="todo-title">클라이언트 피드백 정리</div>
+                            <div class="todo-meta">
+                                <span class="todo-due">⏰ 3월 말</span>
+                                <span class="priority-badge low">낮음</span>
+                            </div>
+                        </div>
+                        <div class="todo-menu">⋯</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 100px;"></div>
+        </div>
+    </div>
+
+    <!-- FAB (Floating Action Button) -->
+    <button class="fab" title="새로운 할일 추가">＋</button>
+
+    <script>
+        // 간단한 상호작용
+        document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const card = this.closest('.todo-card');
+                if (this.checked) {
+                    card.classList.add('completed');
+                } else {
+                    card.classList.remove('completed');
+                }
+            });
+        });
+
+        // 메뉴 버튼
+        document.querySelectorAll('.todo-menu').forEach(menu => {
+            menu.addEventListener('click', function() {
+                alert('메뉴: 수정 / 삭제');
+            });
+        });
+
+        // FAB 버튼
+        document.querySelector('.fab').addEventListener('click', function() {
+            alert('새로운 할일 추가 모드\n\n빠른 입력 모달 열기\n(제목만 입력하고 나중에 마감일/우선순위 추가 가능)');
+        });
+    </script>
+</body>
+</html>
